@@ -34,10 +34,15 @@ model.load_state_dict(torch.load('model.pth', map_location=device))
 model.eval()
 
 def predict_digit(image):
+    if image is None:
+        return "请在画板上书写数字"
+    
     image = Image.fromarray(image.astype('uint8'), 'RGB')
     image = image.convert('L')
     image = image.resize((28, 28))
     image_np = np.array(image) / 255.0
+    
+    image_np = 1 - image_np
     image_np = image_np.reshape(1, 784)
     tensor = torch.tensor(image_np, dtype=torch.float32).to(device)
     
@@ -51,17 +56,18 @@ def predict_digit(image):
 
 with gr.Blocks(title="手写数字识别") as demo:
     gr.Markdown("# 📝 手写数字识别")
-    gr.Markdown("上传一张手写数字图片（0-9），模型将预测数字")
+    gr.Markdown("使用鼠标在画板上书写数字（0-9），模型将自动识别")
     
     with gr.Row():
         with gr.Column():
-            input_image = gr.Image(label="输入图片", scale=2)
-            submit_btn = gr.Button("识别", variant="primary")
+            sketchpad = gr.Sketchpad(label="手写画板", shape=(280, 280), brush_radius=10)
+            clear_btn = gr.Button("清空画板")
         
         with gr.Column():
-            output_text = gr.Textbox(label="预测结果", lines=2)
+            output_text = gr.Textbox(label="预测结果", lines=2, interactive=False)
     
-    submit_btn.click(fn=predict_digit, inputs=input_image, outputs=output_text)
+    sketchpad.change(fn=predict_digit, inputs=sketchpad, outputs=output_text)
+    clear_btn.click(fn=lambda: None, inputs=None, outputs=sketchpad)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
