@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from PIL import Image
 import numpy as np
+import os
 
 class ImprovedDNN(nn.Module):
     def __init__(self):
@@ -54,19 +55,14 @@ with gr.Blocks(title="手写数字识别") as demo:
     
     with gr.Row():
         with gr.Column():
-            input_image = gr.Image(label="输入图片", shape=(200, 200))
+            input_image = gr.Image(label="输入图片", scale=2)
             submit_btn = gr.Button("识别", variant="primary")
         
         with gr.Column():
             output_text = gr.Textbox(label="预测结果", lines=2)
     
     submit_btn.click(fn=predict_digit, inputs=input_image, outputs=output_text)
-    gr.Examples(
-        examples=[
-            ["1.png"]
-        ],
-        inputs=input_image
-    )
 
 if __name__ == "__main__":
-    demo.launch()
+    port = int(os.environ.get("PORT", 7860))
+    demo.launch(server_name="0.0.0.0", server_port=port)
