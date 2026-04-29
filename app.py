@@ -60,7 +60,7 @@ with gr.Blocks(title="手写数字识别") as demo:
     
     with gr.Row():
         with gr.Column():
-            sketchpad = gr.Sketchpad(label="手写画板", shape=(280, 280), brush_radius=10)
+            sketchpad = gr.Sketchpad(label="手写画板")
             clear_btn = gr.Button("清空画板")
         
         with gr.Column():
